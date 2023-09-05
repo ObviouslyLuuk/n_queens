@@ -77,6 +77,15 @@ class Display {
       square.id = "square_" + i
       this.board.appendChild(square)
     }
+    
+    // Set style height of squares to the offsetWidth of the squares
+    // Use existing style element for this
+    let style = document.getElementById('square_height');
+    style.innerHTML = `
+      .square {
+        height: ${board.children[0].offsetWidth}px !important;
+      }
+    `;
   }
 
   initElements() {
@@ -171,7 +180,7 @@ class Display {
     `
 
     let settings = `
-    <div id="info_div" style="background-color: rgb(0,0,0,.95);width: 90%;height: 90%;border-radius: 20px;z-index: 1;position:absolute;justify-content: center;display:none;">
+    <div id="info_div" style="background-color: rgb(0,0,0,.95);width: 90%;height: 90%;border-radius: 20px;z-index: 1000;position:absolute;justify-content: center;display:none;">
     <a id="close_info_btn">x</a>
     <div data-simplebar style="width: 100%;height: 100%;padding: 30px;">
 
