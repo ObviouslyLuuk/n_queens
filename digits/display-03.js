@@ -110,7 +110,7 @@ class Display {
           <input id="pop_size"> 
           <label for="N">Population Size</label>
           <p class="settings_expl">This is the size of the population.</p>
-        </div>      
+        </div>
       </div>
       <button id="set_default_btn" class="btn">Set Default</button>
     </div>

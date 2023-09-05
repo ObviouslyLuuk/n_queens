@@ -33,6 +33,10 @@ class Controller {
   init_settings() {
     this.settings_update_values()
 
+    document.getElementById("set_default_btn").onclick = function() {
+      document.value.controller.set_default_settings()
+    }
+
     document.getElementById("N_input").onchange = function() {
       document.value.display.init_board(this.value)
       document.value.game.n = this.value
@@ -47,6 +51,18 @@ class Controller {
   settings_update_values() {
     document.getElementById("N_input").value = document.value.game.n
     document.getElementById("pop_size").value = document.value.game.pop_size
+  }
+
+  set_default_settings() {
+    let n = 8
+    let pop_size = 20
+
+    document.getElementById("N_input").value = n
+    document.getElementById("pop_size").value = pop_size
+    document.value.display.init_board(n)
+    document.value.game.n = n
+    document.value.game.pop_size = pop_size
+    document.value.game.reset()
   }
 }
 
