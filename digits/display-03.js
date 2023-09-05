@@ -3,6 +3,53 @@ const COOL_BLUE = '0, 115, 255'
 const COOL_RED = '255, 99, 132'
 const COOL_ORANGE = '255, 159, 64'
 
+
+function create_and_append(type, parent=null, id=null, class_=null) {
+  if (parent == null)
+      parent = document.body
+
+  let element = document.createElement(type)
+
+  if (id != null)
+      element.id = id
+  if (class_ != null)
+      element.setAttribute('class', class_)
+
+  parent.appendChild(element)
+  return element
+}
+
+function create_incrementer(parent, id, def, title, expl=null) {
+  div = create_and_append("div", parent, id, "input-group")
+
+  left_div = create_and_append("div", div, null, "input-group-prepend")
+  left_button = create_and_append("button", left_div, null, "btn")
+  left_button.type = "button"
+  left_button.setAttribute("onclick", `let elem = document.getElementById('${id}_input'); if (elem.value > elem.min) {elem.value -= 1; elem.dispatchEvent(new Event("change"))}`)
+  create_and_append("span", left_button, null, "glyphicon glyphicon-minus")
+
+  input = create_and_append("input", div, id+"_input", "form-control")
+  input.type = "number"
+  input.setAttribute("value", def)
+  input.max = 20
+  input.min = 1   
+
+  right_div = create_and_append("div", div, null, "input-group-append")
+  right_button = create_and_append("button", right_div, null, "btn")
+  right_button.type = "button"
+  right_button.setAttribute("onclick", `let elem = document.getElementById('${id}_input'); if (+elem.value < +elem.max) { elem.value = +elem.value + 1; elem.dispatchEvent(new Event("change"))}`)
+  create_and_append("span", right_button, null, "glyphicon glyphicon-plus")
+
+  div.innerHTML += title
+
+  if (expl != null) {
+    create_and_append("p", div, null, "settings_expl").innerHTML = expl
+  }
+
+  return input
+}
+
+
 class Display {
   constructor(n) {
 
@@ -46,12 +93,35 @@ class Display {
     document.body.style.position = 'relative'
     document.body.style['align-items'] = 'center'
 
+    
+    let settings_content = `
+    <div id="settings_div" style="border-radius:5px;display: grid;width: 100%;padding: 5px;background-color:rgb(255,255,255,.2);">
+
+      <h2 style="justify-self: center;">Settings</h2>
+      <br>
+      <div class="settings_div">
+        <div id="n_input_container">
+          <!--
+          <input id="N"> 
+          <label for="N">N Queens</label>
+          <p class="settings_expl">This is the number of queens, and size of the board.</p> -->
+        </div>
+        <div>
+          <input id="pop_size"> 
+          <label for="N">Population Size</label>
+          <p class="settings_expl">This is the size of the population.</p>
+        </div>      
+      </div>
+      <button id="set_default_btn" class="btn">Set Default</button>
+    </div>
+    `
+
     let innerHTML = `
     <div id="content_wrapper" style="width:100%;height:100%;position:absolute;padding:10px">
-    <div id="content_div" style="display: grid; align-items: center; justify-items: center; width:100%; height:100%; grid-template-rows: 40% 60%;">
+    <div id="content_div" style="display: grid; align-items: center; justify-items: center; width:100%; height:100%; grid-template-rows: 60% 40%;">
       <div id="content_top_div" style="display: grid; align-items: end; justify-items: center; grid-template-columns: 50% 50%; width: 100%; height:100%; column-gap:5px">
         <div id="content_top_left_div" style="width: 100%; height:100%">
-          <canvas id="graph_canvas"></canvas>
+          ${settings_content}
           <input id="speed_slider" type="range" min=0 max=10 value=5 style="width:100%;">
           <div id="content_top_right_bar_div" style="display: grid; grid-template-columns: 49% 49%; column-gap: 2%;">
             <button id="reset_btn" class="btn">Reset</button>
@@ -64,6 +134,9 @@ class Display {
           </div>
         </div>
       </div>
+      <div id="content_bottom_div" style="width: 100%; height: 100%">
+        <canvas id="graph_canvas"></canvas>
+      </div>
     </div>
     </div> 
     `
@@ -71,6 +144,10 @@ class Display {
     let highlights_info = ``
 
     let implementation_info = `
+    <p>For this implementation, the (un)fitness of a board is the number of queens that can attack each other.</p>
+    <p>Each generation, the best half of the board population is kept, and the worst half is removed.</p>
+    <p>The best boards are duplicated, and then mutated.</p>
+    <p>The mutation selects a number of queens to move randomly to an empty space.</p>
     `
 
     let controls_info = ``
@@ -78,6 +155,10 @@ class Display {
     let visualization_info = ``
 
     let info_html = `
+    <p>This is an evolutionary algorithm that solves the N Queens problem.</p>
+    <p>The N Queens problem is a puzzle where you have to place N queens on an NxN chess board such that no queen can attack another queen.</p>
+    
+    <!--
     <details>
       <summary><h4>HIGHLIGHTS</h4></summary>
       ${highlights_info}
@@ -92,7 +173,7 @@ class Display {
       <summary><h4>CONTROLS</h4></summary>
       ${controls_info}
     </details>
-    <br>
+    <br> -->
     <details>
       <summary><h4>IMPLEMENTATION</h4></summary>
       ${implementation_info}
@@ -108,30 +189,16 @@ class Display {
       <p>${info_html}</p>
       <br>
 
-      <div id="settings_div" style="border-radius:5px;display: grid;width: 100%;padding: 5px;background-color:rgb(255,255,255,.2);">
-
-        <h2 style="justify-self: center;">Settings</h2>
-        <br>
-        <div class="settings_div">
-          <div>
-            <input id="N"> 
-            <label for="N">N Queens</label>
-            <p class="settings_expl">This is the number of queens, and size of the board.</p>
-          </div>
-          <div>
-            <input id="pop_size"> 
-            <label for="N">Population Size</label>
-            <p class="settings_expl">This is the size of the population.</p>
-          </div>      
-        </div>
-        <button id="set_default_btn" class="btn">Set Default</button>
-      </div>
     </div>
     </div>
     `
 
     document.body.insertAdjacentHTML('beforeend', innerHTML)
     document.body.insertAdjacentHTML('beforeend', settings)
+
+    // Create incrementer in n_input_container
+    let n_input_container = document.getElementById("n_input_container")
+    create_incrementer(n_input_container, "N", 8, "N Queens", "This is the number of queens, and size of the board.")
   }
 
   initGraph() {
@@ -243,12 +310,14 @@ class Display {
 
       if (this.graph) {
         this.graph.destroy() 
-        this.canvas.graph.height = content_top_height
+        // this.canvas.graph.height = content_top_height
+        // this.canvas.graph.height = window.innerHeight / 2
         this.canvas.graph.width = side_width
         this.graph = this.initGraph()
         this.updateGraph(document.value.nn)
       } else {
-        this.canvas.graph.height = content_top_height
+        // this.canvas.graph.height = content_top_height
+        // this.canvas.graph.height = window.innerHeight / 2
         this.canvas.graph.width = side_width
       }
 

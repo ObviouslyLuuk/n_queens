@@ -33,7 +33,7 @@ class Controller {
   init_settings() {
     this.settings_update_values()
 
-    document.getElementById("N").onchange = function() {
+    document.getElementById("N_input").onchange = function() {
       document.value.display.init_board(this.value)
       document.value.game.n = this.value
       document.value.game.reset()
@@ -45,7 +45,7 @@ class Controller {
   }
 
   settings_update_values() {
-    document.getElementById("N").value = document.value.game.n
+    document.getElementById("N_input").value = document.value.game.n
     document.getElementById("pop_size").value = document.value.game.pop_size
   }
 }
