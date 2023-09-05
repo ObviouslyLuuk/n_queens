@@ -20,27 +20,28 @@ function create_and_append(type, parent=null, id=null, class_=null) {
 }
 
 function create_incrementer(parent, id, def, title, expl=null) {
-  div = create_and_append("div", parent, id, "input-group")
+  let div = create_and_append("div", parent, id, "input-group")
 
-  left_div = create_and_append("div", div, null, "input-group-prepend")
-  left_button = create_and_append("button", left_div, null, "btn")
+  div.innerHTML += `<label style="margin-right:5px;" for=${id}>${title}</label>`
+
+  let left_div = create_and_append("div", div, null, "input-group-prepend")
+  let left_button = create_and_append("button", left_div, null, "btn")
   left_button.type = "button"
   left_button.setAttribute("onclick", `let elem = document.getElementById('${id}_input'); if (elem.value > elem.min) {elem.value -= 1; elem.dispatchEvent(new Event("change"))}`)
   create_and_append("span", left_button, null, "glyphicon glyphicon-minus")
 
-  input = create_and_append("input", div, id+"_input", "form-control")
+  let input = create_and_append("input", div, id+"_input", "form-control")
   input.type = "number"
   input.setAttribute("value", def)
   input.max = 20
   input.min = 1   
 
-  right_div = create_and_append("div", div, null, "input-group-append")
-  right_button = create_and_append("button", right_div, null, "btn")
+  let right_div = create_and_append("div", div, null, "input-group-append")
+  let right_button = create_and_append("button", right_div, null, "btn")
   right_button.type = "button"
   right_button.setAttribute("onclick", `let elem = document.getElementById('${id}_input'); if (+elem.value < +elem.max) { elem.value = +elem.value + 1; elem.dispatchEvent(new Event("change"))}`)
   create_and_append("span", right_button, null, "glyphicon glyphicon-plus")
 
-  div.innerHTML += title
 
   if (expl != null) {
     create_and_append("p", div, null, "settings_expl").innerHTML = expl
@@ -76,15 +77,6 @@ class Display {
       square.id = "square_" + i
       this.board.appendChild(square)
     }
-    
-    // Set style height of squares to the offsetWidth of the squares
-    // Use existing style element for this
-    let style = document.getElementById('square_height');
-    style.innerHTML = `
-    .square {
-      height: ${this.board.children[0].offsetWidth}px !important;
-    }
-    `;
   }
 
   initElements() {
@@ -100,42 +92,40 @@ class Display {
       <h2 style="justify-self: center;">Settings</h2>
       <br>
       <div class="settings_div">
-        <div id="n_input_container">
+        <div id="n_input_container" class="setting_div">
           <!--
           <input id="N"> 
           <label for="N">N Queens</label>
           <p class="settings_expl">This is the number of queens, and size of the board.</p> -->
         </div>
-        <div>
+        <div class="setting_div">
+          <label for="pop_size">Population Size</label>
           <input id="pop_size"> 
-          <label for="N">Population Size</label>
           <p class="settings_expl">This is the size of the population.</p>
         </div>
       </div>
       <button id="set_default_btn" class="btn">Set Default</button>
+      <input id="speed_slider" type="range" min=0 max=10 value=5 style="width:100%;">
+      <div id="content_top_right_bar_div" style="display: grid; grid-template-columns: 49% 49%; column-gap: 2%;">
+        <button id="reset_btn" class="btn">Reset</button>
+        <button id="info_btn" class="btn">Info</button>
+      </div>
     </div>
     `
 
     let innerHTML = `
     <div id="content_wrapper" style="width:100%;height:100%;position:absolute;padding:10px">
-    <div id="content_div" style="display: grid; align-items: center; justify-items: center; width:100%; height:100%; grid-template-rows: 60% 40%;">
+    <div id="content_div" style="display: grid; align-items: center; justify-items: center; width:100%; height:100%; grid-template-rows: 100%;">
       <div id="content_top_div" style="display: grid; align-items: end; justify-items: center; grid-template-columns: 50% 50%; width: 100%; height:100%; column-gap:5px">
-        <div id="content_top_left_div" style="width: 100%; height:100%">
+        <div id="content_top_left_div" style="width: 100%; height:100%; align-items: center; display: grid;">
           ${settings_content}
-          <input id="speed_slider" type="range" min=0 max=10 value=5 style="width:100%;">
-          <div id="content_top_right_bar_div" style="display: grid; grid-template-columns: 49% 49%; column-gap: 2%;">
-            <button id="reset_btn" class="btn">Reset</button>
-            <button id="info_btn" class="btn">Info</button>
-          </div>
+          <canvas id="graph_canvas"></canvas>
         </div>
-        <div id="content_top_middle_div">
-          <div id="content_top_middle_main_div" style="display: grid; justify-items: center; margin-bottom: 5px;">
-            <div id="board"></div>
-          </div>
+        <div id="content_top_middle_div" style="width: 100%; height: 100%; align-items: center; display: grid;">
+          <div id="board"></div>
         </div>
       </div>
       <div id="content_bottom_div" style="width: 100%; height: 100%">
-        <canvas id="graph_canvas"></canvas>
       </div>
     </div>
     </div> 
@@ -306,6 +296,22 @@ class Display {
     let content_top_height = document.getElementById("content_top_div").offsetHeight
     if (!window.mobileCheck()) {
       let middle_width = document.getElementById("content_top_middle_div").offsetWidth
+      let middle_height = document.getElementById("content_top_middle_div").offsetHeight
+
+      let board = document.getElementById("board")
+      let board_size = Math.min(middle_width, middle_height)*.9
+      board.style.height = board_size + "px"
+      board.style.width = board_size + "px"
+      
+      // Set style height of squares to the offsetWidth of the squares
+      // Use existing style element for this
+      let style = document.getElementById('square_height');
+      style.innerHTML = `
+        .square {
+          height: ${board.children[0].offsetWidth}px !important;
+        }
+      `;
+
       let side_width = (width - middle_width) / 2
 
       if (this.graph) {

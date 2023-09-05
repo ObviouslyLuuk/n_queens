@@ -97,6 +97,10 @@ input {
 }
 
 /* INFO PAGE */
+.setting_div {
+  padding: 10px;
+}
+
 .settings_expl {
   font-size: 12px;
   color: darkgrey;
